@@ -1,8 +1,11 @@
 <template>
   <div class="question-box-container">
     <b-jumbotron>
-      <template #lead>
-        Some questions here?
+      <template #lead v-if="currQuestion">
+        {{currQuestion.question}}
+      </template>
+      <template v-else>
+        Question is loading...
       </template>
 
       <hr class="my-4" />
@@ -16,3 +19,12 @@
     </b-jumbotron>
   </div>
 </template>
+
+<script>
+
+export default{
+  props: {
+    currQuestion: Object
+  }
+}
+</script>
