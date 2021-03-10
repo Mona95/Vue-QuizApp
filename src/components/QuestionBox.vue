@@ -9,7 +9,7 @@
 
       <b-list-group>
         <b-list-group-item
-          v-for="(answer, index) in answers"
+          v-for="(answer, index) in shuffledAnswers"
           v-bind:key="index"
           @click.prevent="selectedAnswer(index)"
           :class="[selectedIndex === index ? 'selected' : '']"
@@ -18,61 +18,93 @@
         </b-list-group-item>
       </b-list-group>
 
-      <b-button variant="primary" href="#">Submit</b-button>
-      <b-button variant="success" href="#" @click="next">Next</b-button>
+      <b-button
+        variant="primary"
+        @click="submitAnswer"
+        :disabled="selectedIndex === null || answered"
+        >Submit</b-button
+      >
+      <b-button variant="success" @click="next">Next</b-button>
     </b-jumbotron>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
 export default {
   props: {
     currQuestion: Object,
     next: Function,
+    increment: Function,
   },
-  data(){
+  data() {
     return {
-      selectedIndex:null
-    }
+      selectedIndex: null,
+      correctIndex: null,
+      shuffledAnswers: [],
+      answered: false
+    };
   },
-  computed: {
-    answers: function () {
-      let answers = [...this.currQuestion.incorrect_answers];
-      answers.push(this.currQuestion.correct_answer);
-      return answers;
+  watch: {
+    currQuestion: {
+      immediate: true,
+      handler() {
+        this.selectedIndex = null;
+        this.answered = false;
+        this.shuffleAnswers();
+      },
     },
   },
   methods: {
-    selectedAnswer: function(index){
+    selectedAnswer: function (index) {
       this.selectedIndex = index;
-    }
-  }
+    },
+    shuffleAnswers: function () {
+      let answers = [
+        ...this.currQuestion.incorrect_answers,
+        this.currQuestion.correct_answer,
+      ];
+      this.shuffledAnswers = _.shuffle(answers);
+      this.correctIndex = this.shuffledAnswers.indexOf(
+        this.currQuestion.correct_answer
+      );
+    },
+    submitAnswer: function () {
+      let isCorrect = false;
+      if (this.selectedIndex === this.correctIndex) {
+        isCorrect = true;
+      }
+
+      this.increment(isCorrect);
+      this.answered = true;
+    },
+  },
 };
 </script>
 
 <style scoped>
-.list-group{
+.list-group {
   margin-bottom: 15px;
 }
 
-.list-group-item:hover{
-  background: #EEE;
+.list-group-item:hover {
+  background: #eee;
   cursor: pointer;
 }
 
-.btn{
-  margin:0 5px;
+.btn {
+  margin: 0 5px;
 }
 
-.selected{
+.selected {
   background-color: lemonchiffon;
 }
 
-.correct{
+.correct {
   background-color: green;
 }
 
-.incorrect{
+.incorrect {
   background-color: red;
 }
 </style>
