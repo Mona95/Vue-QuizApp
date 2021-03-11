@@ -12,7 +12,8 @@
           v-for="(answer, index) in shuffledAnswers"
           v-bind:key="index"
           @click.prevent="selectedAnswer(index)"
-          :class="[selectedIndex === index ? 'selected' : '']"
+          :disabled="answered"
+          :class="answerClass(index)"
         >
           {{ answer }}
         </b-list-group-item>
@@ -42,7 +43,7 @@ export default {
       selectedIndex: null,
       correctIndex: null,
       shuffledAnswers: [],
-      answered: false
+      answered: false,
     };
   },
   watch: {
@@ -68,6 +69,20 @@ export default {
       this.correctIndex = this.shuffledAnswers.indexOf(
         this.currQuestion.correct_answer
       );
+    },
+    answerClass: function(index){
+        let answerCls = '';
+
+        if(!this.answered && this.selectedIndex === index){
+          answerCls = 'selected';
+        }else if(this.answered && this.correctIndex === index){
+          answerCls = 'correct';
+        } else if(this.answered && this.selectedIndex === index && this.correctIndex !== index) {
+          answerCls = 'incorrect'
+        }
+
+        return answerCls;
+
     },
     submitAnswer: function () {
       let isCorrect = false;
@@ -101,7 +116,7 @@ export default {
 }
 
 .correct {
-  background-color: green;
+  background-color: lightgreen;
 }
 
 .incorrect {
